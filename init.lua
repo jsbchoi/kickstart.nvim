@@ -1,4 +1,4 @@
---[[
+--[[s
 
 =====================================================================
 ==================== READ THIS BEFORE CONTINUING ====================
@@ -87,8 +87,37 @@ P.S. You can delete this when you're done too. It's your config now! :)
 -- Set <space> as the leader key
 -- See `:help mapleader`
 --  NOTE: Must happen before plugins are loaded (otherwise wrong leader will be used)
+vim.keymap.set({ 'n', 'v' }, '<space>l', ':Gen Chat<CR>')
+vim.keymap.set({ 'n', 'v' }, '<space>lt', ':Gen Ask<CR>')
+vim.keymap.set('n', '<space>fb', ':Telescope file_browser<CR>')
+vim.opt.inccommand = ''
+vim.keymap.set('n', 'ld', function()
+  vim.diagnostic.open_float()
+end, { desc = 'Show line diagnostics' })
+vim.g.netrw_liststyle = 3
+local options = { noremap = true }
 vim.g.mapleader = ' '
 vim.g.maplocalleader = ' '
+vim.keymap.set('i', 'jk', '<Esc>', options)
+vim.keymap.set('n', '<C-`>', ':split | terminal<CR>', { noremap = true, silent = true })
+vim.api.nvim_set_keymap('n', '<leader>ee', [[:lua ToggleNetrwVsplit()<CR>]], { noremap = true, silent = true })
+
+function ToggleNetrwVsplit()
+  local isNetrwOpen = false
+  for _ in ipairs(vim.api.nvim_list_wins()) do
+    if vim.bo.filetype == 'netrw' then
+      isNetrwOpen = true
+      vim.cmd 'close' -- Close the netrw window if open
+      return
+    end
+  end
+
+  if not isNetrwOpen then
+    vim.cmd 'lefta vsplit'
+    vim.cmd 'vertical resize 30' -- Set the width of the vsplit
+    vim.cmd 'Ex'
+  end
+end
 
 -- Set to true if you have a Nerd Font installed and selected in the terminal
 vim.g.have_nerd_font = false
@@ -145,11 +174,25 @@ vim.opt.splitbelow = true
 -- Sets how neovim will display certain whitespace characters in the editor.
 --  See `:help 'list'`
 --  and `:help 'listchars'`
-vim.opt.list = true
+vim.opt.list = false
 vim.opt.listchars = { tab = '» ', trail = '·', nbsp = '␣' }
+vim.opt.tabstop = 4
+vim.opt.shiftwidth = 4
+vim.softtabstop = 4
+vim.opt.expandtab = true
+vim.opt.autoindent = true
+vim.opt.smartindent = false
+-- Enable absolute line numbers
+vim.opt.number = true
+
+-- Enable relative line numbers
+vim.opt.relativenumber = true
+
+vim.keymap.set('n', '<S-w>', function()
+  vim.wo.wrap = not vim.wo.wrap
+end, { noremap = true, silent = true })
 
 -- Preview substitutions live, as you type!
-vim.opt.inccommand = 'split'
 
 -- Show which line your cursor is on
 vim.opt.cursorline = true
@@ -173,7 +216,7 @@ vim.keymap.set('n', '<leader>q', vim.diagnostic.setloclist, { desc = 'Open diagn
 --
 -- NOTE: This won't work in all terminal emulators/tmux/etc. Try your own mapping
 -- or just use <C-\><C-n> to exit terminal mode
-vim.keymap.set('t', '<Esc><Esc>', '<C-\\><C-n>', { desc = 'Exit terminal mode' })
+-- vim.keymap.set('t', '<Esc><Esc>', '<C-\\><C-n>', { desc = 'Exit terminal mode' })
 
 -- TIP: Disable arrow keys in normal mode
 -- vim.keymap.set('n', '<left>', '<cmd>echo "Use h to move!!"<CR>')
@@ -189,6 +232,7 @@ vim.keymap.set('n', '<C-h>', '<C-w><C-h>', { desc = 'Move focus to the left wind
 vim.keymap.set('n', '<C-l>', '<C-w><C-l>', { desc = 'Move focus to the right window' })
 vim.keymap.set('n', '<C-j>', '<C-w><C-j>', { desc = 'Move focus to the lower window' })
 vim.keymap.set('n', '<C-k>', '<C-w><C-k>', { desc = 'Move focus to the upper window' })
+vim.g.autoformat = false
 
 -- [[ Basic Autocommands ]]
 --  See `:help lua-guide-autocommands`
@@ -243,6 +287,166 @@ require('lazy').setup({
   --    require('gitsigns').setup({ ... })
   --
   -- See `:help gitsigns` to understand what the configuration keys do
+  --
+  -- Custom Parameters (with defaults)
+  {
+    'David-Kunz/gen.nvim',
+    opts = {
+      model = 'qwen2.5:14b', -- The default model to use.
+      quit_map = 'q', -- set keymap to close the response window
+      retry_map = '<c-r>', -- set keymap to re-send the current prompt
+      accept_map = '<c-cr>', -- set keymap to replace the previous selection with the last result
+      host = 'localhost', -- The host running the Ollama service.
+      port = '11434', -- The port on which the Ollama service is listening.
+      display_mode = 'split', -- The display mode. Can be "float" or "split" or "horizontal-split".
+      show_prompt = false, -- Shows the prompt submitted to Ollama.
+      show_model = false, -- Displays which model you are using at the beginning of your chat session.
+      no_auto_close = false, -- Never closes the window automatically.
+      file = false, -- Write the payload to a temporary file to keep the command short.
+      hidden = false, -- Hide the generation window (if true, will implicitly set `prompt.replace = true`), requires Neovim >= 0.10
+      -- The command for the Ollama service. You can use placeholders $prompt, $model and $body (shellescaped).
+      -- This can also be a command string.
+      -- The executed command must return a JSON object with { response, context }
+      -- (context property is optional).
+      -- list_models = '<omitted lua function>', -- Retrieves a list of model names
+      debug = false, -- Prints errors and the command which is run.
+    },
+  },
+  {
+    'kdheepak/lazygit.nvim',
+    lazy = true,
+    cmd = {
+      'LazyGit',
+      'LazyGitConfig',
+      'LazyGitCurrentFile',
+      'LazyGitFilter',
+      'LazyGitFilterCurrentFile',
+    },
+    -- optional for floating window border decoration
+    dependencies = {
+      'nvim-lua/plenary.nvim',
+    },
+    -- setting the keybinding for LazyGit with 'keys' is recommended in
+    -- order to load the plugin when the command is run for the first time
+    keys = {
+      { 'lg', '<cmd>LazyGit<cr>', desc = 'LazyGit' },
+    },
+  },
+  {
+    'nvim-lualine/lualine.nvim',
+    dependencies = { 'nvim-tree/nvim-web-devicons' },
+    config = function()
+      require('lualine').setup {
+        options = {
+          icons_enabled = true,
+          theme = 'auto',
+          component_separators = { left = '', right = '' },
+          section_separators = { left = '', right = '' },
+          disabled_filetypes = {
+            statusline = {},
+            winbar = {},
+          },
+          ignore_focus = {},
+          always_divide_middle = true,
+          always_show_tabline = true,
+          globalstatus = false,
+          refresh = {
+            statusline = 100,
+            tabline = 100,
+            winbar = 100,
+          },
+        },
+        sections = {
+          lualine_a = { 'mode' },
+          lualine_b = { 'branch', 'diff', 'diagnostics' },
+          lualine_c = { 'filename' },
+          lualine_x = { 'encoding', 'fileformat', 'filetype' },
+          lualine_y = { 'progress' },
+          lualine_z = { 'location' },
+        },
+        inactive_sections = {
+          lualine_a = {},
+          lualine_b = {},
+          lualine_c = { 'filename' },
+          lualine_x = { 'location' },
+          lualine_y = {},
+          lualine_z = {},
+        },
+        tabline = {},
+        winbar = {},
+        inactive_winbar = {},
+        extensions = {},
+      }
+    end,
+  },
+  {
+    'nvim-telescope/telescope-file-browser.nvim',
+    dependencies = { 'nvim-telescope/telescope.nvim', 'nvim-lua/plenary.nvim' },
+  },
+  {
+    'windwp/nvim-ts-autotag',
+    dependencies = { 'nvim-treesitter' },
+    config = function()
+      require('nvim-ts-autotag').setup {
+        opts = {
+          enable_close = true,
+          enable_rename = true,
+          enable_close_on_slash = false,
+        },
+        per_filetype = {
+          ['html'] = {
+            enable_close = true,
+          },
+          ['jsx'] = {
+            enable_close = true,
+          },
+          ['tsx'] = {
+            enable_close = true,
+          },
+        },
+      }
+    end,
+  },
+  {
+    'lukas-reineke/indent-blankline.nvim',
+    main = 'ibl',
+    ---@module "ibl"
+    ---@type ibl.config
+    opts = {},
+    config = function()
+      -- Ensure Comment.nvim is set up
+      require('ibl').setup()
+    end,
+  },
+  {
+    'nmac427/guess-indent.nvim',
+    opts = {
+      auto_cmd = true, -- Set to false to disable automatic execution
+      override_editorconfig = false, -- Set to true to override settings set by .editorconfig
+      filetype_exclude = { -- A list of filetypes for which the auto command gets disabled
+        'netrw',
+        'tutor',
+      },
+      buftype_exclude = { -- A list of buffer types for which the auto command gets disabled
+        'help',
+        'nofile',
+        'terminal',
+        'prompt',
+      },
+      on_tab_options = { -- A table of vim options when tabs are detected
+        ['expandtab'] = false,
+      },
+      on_space_options = { -- A table of vim options when spaces are detected
+        ['expandtab'] = true,
+        ['tabstop'] = 'detected', -- If the option value is 'detected', The value is set to the automatically detected indent size.
+        ['softtabstop'] = 'detected',
+        ['shiftwidth'] = 'detected',
+      },
+    },
+    config = function(_, opts)
+      require('guess-indent').setup(opts)
+    end,
+  },
   { -- Adds git related signs to the gutter, as well as utilities for managing changes
     'lewis6991/gitsigns.nvim',
     opts = {
@@ -255,7 +459,18 @@ require('lazy').setup({
       },
     },
   },
-
+  {
+    'numToStr/Comment.nvim',
+    config = function()
+      -- Ensure Comment.nvim is set up
+      require('Comment').setup()
+    end,
+  },
+  {
+    'ThePrimeagen/harpoon',
+    branch = 'harpoon2',
+    dependencies = { 'nvim-lua/plenary.nvim' },
+  },
   -- NOTE: Plugins can also be configured to run Lua code when they are loaded.
   --
   -- This is often very useful to both group configuration, as well as handle
@@ -324,7 +539,56 @@ require('lazy').setup({
       },
     },
   },
-
+  { 'akinsho/toggleterm.nvim', version = '*', opts = { open_mapping = [[<c-\>]] } },
+  {
+    'windwp/nvim-autopairs',
+    event = 'InsertEnter',
+    config = true,
+    -- use opts = {} for passing setup options
+    -- this is equivalent to setup({}) function
+  },
+  {
+    'folke/trouble.nvim',
+    opts = {}, -- for default options, refer to the configuration section for custom setup.
+    cmd = 'Trouble',
+    keys = {
+      {
+        'ld',
+        '<cmd>Trouble diagnostics toggle<cr>',
+        desc = 'Diagnostics (Trouble)',
+      },
+      {
+        '<leader>xX',
+        '<cmd>Trouble diagnostics toggle filter.buf=0<cr>',
+        desc = 'Buffer Diagnostics (Trouble)',
+      },
+      {
+        '<leader>cs',
+        '<cmd>Trouble symbols toggle focus=false<cr>',
+        desc = 'Symbols (Trouble)',
+      },
+      {
+        '<leader>cl',
+        '<cmd>Trouble lsp toggle focus=false win.position=right<cr>',
+        desc = 'LSP Definitions / references / ... (Trouble)',
+      },
+      {
+        '<leader>xL',
+        '<cmd>Trouble loclist toggle<cr>',
+        desc = 'Location List (Trouble)',
+      },
+      {
+        '<leader>xQ',
+        '<cmd>Trouble qflist toggle<cr>',
+        desc = 'Quickfix List (Trouble)',
+      },
+      {
+        'td',
+        '<cmd>Trouble todo toggle<cr>',
+        desc = 'Todo (Trouble)',
+      },
+    },
+  },
   -- NOTE: Plugins can specify dependencies.
   --
   -- The dependencies are proper plugin specifications as well - anything
@@ -382,11 +646,19 @@ require('lazy').setup({
         -- You can put your default mappings / updates / etc. in here
         --  All the info you're looking for is in `:help telescope.setup()`
         --
-        -- defaults = {
-        --   mappings = {
-        --     i = { ['<c-enter>'] = 'to_fuzzy_refine' },
-        --   },
-        -- },
+        defaults = {
+          mappings = {
+            i = {
+              ['<CR>'] = require('telescope.actions').select_default, -- Set Enter to open in a new tab in insert mode
+              ['<S-CR>'] = require('telescope.actions').select_tab, -- Set Enter to open in a new tab in insert mode
+            },
+            n = {
+              ['<CR>'] = require('telescope.actions').select_default, -- Set Enter to open in a new tab in insert mode
+              ['<S-CR>'] = require('telescope.actions').select_tab, -- Set Enter to open in a new tab in insert mode
+            },
+          },
+          file_ignore_patterns = { 'node_modules', '/path/to/venv' },
+        },
         -- pickers = {}
         extensions = {
           ['ui-select'] = {
@@ -403,7 +675,7 @@ require('lazy').setup({
       local builtin = require 'telescope.builtin'
       vim.keymap.set('n', '<leader>sh', builtin.help_tags, { desc = '[S]earch [H]elp' })
       vim.keymap.set('n', '<leader>sk', builtin.keymaps, { desc = '[S]earch [K]eymaps' })
-      vim.keymap.set('n', '<leader>sf', builtin.find_files, { desc = '[S]earch [F]iles' })
+      vim.keymap.set('n', '<leader>fD', builtin.find_files, { desc = '[S]earch [F]iles' })
       vim.keymap.set('n', '<leader>ss', builtin.builtin, { desc = '[S]earch [S]elect Telescope' })
       vim.keymap.set('n', '<leader>sw', builtin.grep_string, { desc = '[S]earch current [W]ord' })
       vim.keymap.set('n', '<leader>sg', builtin.live_grep, { desc = '[S]earch by [G]rep' })
@@ -411,7 +683,22 @@ require('lazy').setup({
       vim.keymap.set('n', '<leader>sr', builtin.resume, { desc = '[S]earch [R]esume' })
       vim.keymap.set('n', '<leader>s.', builtin.oldfiles, { desc = '[S]earch Recent Files ("." for repeat)' })
       vim.keymap.set('n', '<leader><leader>', builtin.buffers, { desc = '[ ] Find existing buffers' })
+      function GrepInProject()
+        builtin.live_grep {
+          cwd = vim.loop.cwd(), -- Use the current project root as the directory
+          prompt_title = 'Grep Project',
+        }
+      end
 
+      -- Set up the keymap for <leader>fd to run the grep function
+      vim.keymap.set('n', '<leader>fd', GrepInProject, { noremap = true, silent = true })
+      function SearchInProject()
+        builtin.find_files {
+          cwd = vim.loop.cwd(), -- Use the current project root as the directory
+          prompt_title = 'Project Files',
+        }
+      end
+      vim.keymap.set('n', '<leader>ff', SearchInProject, { noremap = true, silent = true })
       -- Slightly advanced example of overriding default behavior and theme
       vim.keymap.set('n', '<leader>/', function()
         -- You can pass additional configuration to Telescope to change the theme, layout, etc.
@@ -454,6 +741,7 @@ require('lazy').setup({
   {
     -- Main LSP Configuration
     'neovim/nvim-lspconfig',
+    opts = { autoformat = false },
     dependencies = {
       -- Automatically install LSPs and related tools to stdpath for Neovim
       { 'williamboman/mason.nvim', config = true }, -- NOTE: Must be loaded before dependants
@@ -615,7 +903,7 @@ require('lazy').setup({
         --    https://github.com/pmizio/typescript-tools.nvim
         --
         -- But for many setups, the LSP (`ts_ls`) will work just fine
-        -- ts_ls = {},
+        ts_ls = {},
         --
 
         lua_ls = {
@@ -703,7 +991,7 @@ require('lazy').setup({
         -- python = { "isort", "black" },
         --
         -- You can use 'stop_after_first' to run the first available formatter from the list
-        -- javascript = { "prettierd", "prettier", stop_after_first = true },
+        javascript = { 'prettierd', 'prettier', stop_after_first = true },
       },
     },
   },
@@ -775,7 +1063,7 @@ require('lazy').setup({
           -- Accept ([y]es) the completion.
           --  This will auto-import if your LSP supports it.
           --  This will expand snippets if the LSP sent a snippet.
-          ['<C-y>'] = cmp.mapping.confirm { select = true },
+          ['<Tab>'] = cmp.mapping.confirm { select = true },
 
           -- If you prefer more traditional completion keymaps,
           -- you can uncomment the following lines
@@ -829,13 +1117,13 @@ require('lazy').setup({
     -- change the command in the config to whatever the name of that colorscheme is.
     --
     -- If you want to see what colorschemes are already installed, you can use `:Telescope colorscheme`.
-    'folke/tokyonight.nvim',
+    'tomasiser/vim-code-dark',
     priority = 1000, -- Make sure to load this before all the other start plugins.
     init = function()
       -- Load the colorscheme here.
       -- Like many other themes, this one has different styles, and you could load
       -- any other, such as 'tokyonight-storm', 'tokyonight-moon', or 'tokyonight-day'.
-      vim.cmd.colorscheme 'tokyonight-night'
+      vim.cmd.colorscheme 'codedark'
 
       -- You can configure highlights by doing something like:
       vim.cmd.hi 'Comment gui=none'
@@ -843,7 +1131,27 @@ require('lazy').setup({
   },
 
   -- Highlight todo, notes, etc in comments
-  { 'folke/todo-comments.nvim', event = 'VimEnter', dependencies = { 'nvim-lua/plenary.nvim' }, opts = { signs = false } },
+  {
+    'folke/todo-comments.nvim',
+    event = 'VimEnter',
+    dependencies = { 'nvim-lua/plenary.nvim' },
+    opts = { signs = false },
+    search = {
+      command = 'rg',
+      args = {
+        '--glob=!lib',
+      },
+    },
+    init = function()
+      vim.keymap.set('n', ']t', function()
+        require('todo-comments').jump_next()
+      end, { desc = 'Next todo comment' })
+
+      vim.keymap.set('n', '[t', function()
+        require('todo-comments').jump_prev()
+      end, { desc = 'Previous todo comment' })
+    end,
+  },
 
   { -- Collection of various small independent plugins/modules
     'echasnovski/mini.nvim',
@@ -898,7 +1206,16 @@ require('lazy').setup({
         --  the list of additional_vim_regex_highlighting and disabled languages for indent.
         additional_vim_regex_highlighting = { 'ruby' },
       },
-      indent = { enable = true, disable = { 'ruby' } },
+      rainbow = {
+        enable = true,
+        disable = {}, -- List languages to disable rainbow for
+        extended_mode = true, -- Highlight non-bracket delimiters like HTML tags
+        max_file_lines = nil, -- Disable for files with more than n lines
+        -- You can define specific colors or terminal colors if desired:
+        -- colors = { "#ff5f87", "#5fd7ff", "#5fafd7" },
+        -- termcolors = { "Red", "Cyan", "Yellow" }
+      },
+      indent = { enable = false, disable = { 'ruby' } },
     },
     -- There are additional nvim-treesitter modules that you can use to interact
     -- with nvim-treesitter. You should go explore a few and see what interests you:
@@ -951,6 +1268,61 @@ require('lazy').setup({
     },
   },
 })
+local harpoon = require 'harpoon'
 
+-- REQUIRED
+harpoon:setup()
+-- REQUIRED
+
+vim.keymap.set('n', '<leader>a', function()
+  harpoon:list():add()
+end)
+vim.keymap.set('n', '<C-e>', function()
+  harpoon.ui:toggle_quick_menu(harpoon:list())
+end)
+
+vim.keymap.set('n', '<C-1>', function()
+  harpoon:list():select(1)
+end)
+vim.keymap.set('n', '<C-2>', function()
+  harpoon:list():select(2)
+end)
+vim.keymap.set('n', '<C-3>', function()
+  harpoon:list():select(3)
+end)
+vim.keymap.set('n', '<C-4>', function()
+  harpoon:list():select(4)
+end)
+
+-- Toggle previous & next buffers stored within Harpoon list
+vim.keymap.set('n', '<C-S-P>', function()
+  harpoon:list():prev()
+end)
+vim.keymap.set('n', '<C-S-N>', function()
+  harpoon:list():next()
+end)
 -- The line beneath this is called `modeline`. See `:help modeline`
 -- vim: ts=2 sts=2 sw=2 et
+-- Move to tab 1
+vim.api.nvim_set_keymap('n', '<leader>1', '<cmd>tabn 1<CR>', { noremap = true, silent = true })
+
+-- Move to tab 2
+vim.api.nvim_set_keymap('n', '<leader>2', '<cmd>tabn 2<CR>', { noremap = true, silent = true })
+
+-- Move to tab 3
+vim.api.nvim_set_keymap('n', '<leader>3', '<cmd>tabn 3<CR>', { noremap = true, silent = true })
+
+-- Move to tab 4
+vim.api.nvim_set_keymap('n', '<leader>4', '<cmd>tabn 4<CR>', { noremap = true, silent = true })
+
+-- Move to tab 5
+vim.api.nvim_set_keymap('n', '<leader>5', '<cmd>tabn 5<CR>', { noremap = true, silent = true })
+
+-- Move to the next tab using <leader>n
+--
+vim.api.nvim_set_keymap('n', '<leader>n', 'g<Tab>', { noremap = true, silent = true })
+-- Disable virtual_text since it's redundant due to lsp_lines.
+vim.diagnostic.config {
+  virtual_text = false,
+}
+vim.diagnostic.config { virtual_lines = true }
