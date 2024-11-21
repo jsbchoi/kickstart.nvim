@@ -1,0 +1,178 @@
+[font]
+normal.family = "JetBrainsMono Nerd Font"
+size = 18
+
+# active.toml
+# Colors (One Dark)
+
+# Default colors
+[colors.primary]
+background = '#282c34'
+foreground = '#abb2bf'
+
+# Normal colors
+[colors.normal]
+black   = '#1e2127'
+red     = '#e06c75'
+green   = '#98c379'
+yellow  = '#d19a66'
+blue    = '#61afef'
+magenta = '#c678dd'
+cyan    = '#56b6c2'
+white   = '#abb2bf'
+
+# Bright colors
+[colors.bright]
+black   = '#5c6370'
+red     = '#e06c75'
+green   = '#98c379'
+yellow  = '#d19a66'
+blue    = '#61afef'
+magenta = '#c678dd'
+cyan    = '#56b6c2'
+white   = '#ffffff'
+[mouse]
+[[mouse.bindings]]
+action = "PasteSelection"
+mouse = "Right"
+
+[keyboard]
+[[keyboard.bindings]]
+action = "CreateNewWindow"
+key = "n"
+mods = "Command"
+
+[[keyboard.bindings]]
+chars = "\u0002\""
+key = "E"
+mods = "Command"
+
+[[keyboard.bindings]]
+chars = "\u0002%"
+key = "E"
+mods = "Command|Shift"
+
+[[keyboard.bindings]]
+chars = "\u0002s"
+key = "K"
+mods = "Command"
+
+[[keyboard.bindings]]
+chars = "\u0002L"
+key = "L"
+mods = "Command"
+
+[[keyboard.bindings]]
+chars = """
+:q
+"""
+key = "Q"
+mods = "Command"
+
+[[keyboard.bindings]]
+chars = """
+\u001B:w
+"""
+key = "S"
+mods = "Command"
+
+[[keyboard.bindings]]
+chars = "\u0002c"
+key = "T"
+mods = "Command"
+
+[[keyboard.bindings]]
+chars = "\u0002x"
+key = "W"
+mods = "Command"
+
+[[keyboard.bindings]]
+chars = "\u0002z"
+key = "Z"
+mods = "Command"
+
+[[keyboard.bindings]]
+chars = "\u0002n"
+key = "Tab"
+mods = "Control"
+
+[[keyboard.bindings]]
+chars = "\u0002,"
+key = "Comma"
+mods = "Command"
+
+[[keyboard.bindings]]
+chars = "\u000F"
+key = "LBracket"
+mods = "Command"
+
+[[keyboard.bindings]]
+chars = "\u0002p"
+key = "LBracket"
+mods = "Command|Shift"
+
+[[keyboard.bindings]]
+chars = "\t"
+key = "RBracket"
+mods = "Command"
+
+[[keyboard.bindings]]
+chars = "\u0002n"
+key = "RBracket"
+mods = "Command|Shift"
+
+[[keyboard.bindings]]
+chars = "\u0002:"
+key = "Semicolon"
+mods = "Command"
+
+[[keyboard.bindings]]
+chars = "\u00020"
+key = "Key1"
+mods = "Command"
+
+[[keyboard.bindings]]
+chars = "\u00021"
+key = "Key2"
+mods = "Command"
+
+[[keyboard.bindings]]
+chars = "\u00022"
+key = "Key3"
+mods = "Command"
+
+[[keyboard.bindings]]
+chars = "\u00023"
+key = "Key4"
+mods = "Command"
+
+[[keyboard.bindings]]
+chars = "\u00024"
+key = "Key5"
+mods = "Command"
+
+[[keyboard.bindings]]
+chars = "\u00025"
+key = "Key6"
+mods = "Command"
+
+[[keyboard.bindings]]
+chars = "\u00026"
+key = "Key7"
+mods = "Command"
+
+[[keyboard.bindings]]
+chars = "\u00027"
+key = "Key8"
+mods = "Command"
+
+[[keyboard.bindings]]
+chars = "\u00028"
+key = "Key9"
+mods = "Command"
+
+[[keyboard.bindings]]
+chars = "\u001b"
+key = "Enter"
+mods = "Shift"
+
