@@ -542,6 +542,11 @@ require('lazy').setup({
         '<cmd>Trouble todo toggle<cr>',
         desc = 'Todo (Trouble)',
       },
+      {
+        'bd',
+        '<cmd>Trouble bugs toggle<cr>',
+        desc = 'Todo (Trouble)',
+      },
     },
   },
   -- NOTE: Plugins can specify dependencies.
